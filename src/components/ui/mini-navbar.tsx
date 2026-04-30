@@ -1,0 +1,123 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from 'react';
+
+const AnimatedNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  const defaultTextColor = 'text-gray-300';
+  const hoverTextColor = 'text-white';
+  const textSizeClass = 'text-sm';
+
+  return (
+    <a href={href} className={`group relative inline-block overflow-hidden h-5 flex items-center ${textSizeClass}`}>
+      <div className="flex flex-col transition-transform duration-400 ease-out transform group-hover:-translate-y-1/2">
+        <span className={defaultTextColor}>{children}</span>
+        <span className={hoverTextColor}>{children}</span>
+      </div>
+    </a>
+  );
+};
+
+interface NavbarProps {
+  onSectionClick?: (index: number) => void;
+}
+
+export function Navbar({ onSectionClick }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [headerShapeClass, setHeaderShapeClass] = useState('rounded-full');
+  const shapeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    if (shapeTimeoutRef.current) {
+      clearTimeout(shapeTimeoutRef.current);
+    }
+
+    if (isOpen) {
+      setHeaderShapeClass('rounded-xl');
+    } else {
+      shapeTimeoutRef.current = setTimeout(() => {
+        setHeaderShapeClass('rounded-full');
+      }, 300);
+    }
+
+    return () => {
+      if (shapeTimeoutRef.current) {
+        clearTimeout(shapeTimeoutRef.current);
+      }
+    };
+  }, [isOpen]);
+
+  const logoElement = (
+    <div className="relative w-5 h-5 flex items-center justify-center">
+    <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-200 top-0 left-1/2 transform -translate-x-1/2 opacity-80"></span>
+    <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-200 left-0 top-1/2 transform -translate-y-1/2 opacity-80"></span>
+    <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-200 right-0 top-1/2 transform -translate-y-1/2 opacity-80"></span>
+    <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-200 bottom-0 left-1/2 transform -translate-x-1/2 opacity-80"></span>
+ </div>
+  );
+
+  const navLinksData = [
+    { label: 'الجوهر', sectionIndex: 0, isHero: true },
+    { label: 'الاستكشاف', sectionIndex: 1 },
+    { label: 'المختبر', sectionIndex: 2 },
+    { label: 'التكوين', sectionIndex: 3 },
+    { label: 'الرؤى', sectionIndex: 4 },
+    { label: 'النظام', sectionIndex: 5 },
+    { label: 'المنطق', sectionIndex: 6 },
+    { label: 'الأرشيف', sectionIndex: 7 },
+  ];
+
+  return (
+    <header className={`fixed top-4 md:top-8 left-1/2 -translate-x-1/2 z-[100]
+                       flex flex-col items-center
+                       px-4 py-2.5 backdrop-blur-md
+                       ${headerShapeClass}
+                       border border-white/10 glass
+                       w-auto
+                       transition-[border-radius] duration-300 ease-in-out`}>
+
+      <div className="flex items-center gap-x-6 sm:gap-x-8">
+        <nav className="hidden sm:flex items-center space-x-1 sm:space-x-2 text-[10px] uppercase font-mono tracking-tighter">
+          {navLinksData.map((link) => (
+            <button 
+              key={link.label} 
+              onClick={() => onSectionClick?.(link.sectionIndex)} 
+              className={`px-3 py-1.5 transition-all duration-300 rounded-full ${link.isHero ? 'bg-white text-black font-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+                {link.label}
+            </button>
+          ))}
+        </nav>
+
+        <button className="sm:hidden flex items-center justify-center w-8 h-8 text-gray-300 focus:outline-none" onClick={toggleMenu} aria-label={isOpen ? 'Close Menu' : 'Open Menu'}>
+          {isOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          )}
+        </button>
+      </div>
+
+      <div className={`sm:hidden flex flex-col items-center w-full transition-all ease-in-out duration-300 overflow-hidden
+                       ${isOpen ? 'max-h-[1000px] opacity-100 pt-4' : 'max-h-0 opacity-0 pt-0 pointer-events-none'}`}>
+        <nav className="flex flex-col items-center space-y-4 text-base w-full">
+          {navLinksData.map((link) => (
+            <button 
+              key={link.label} 
+              onClick={() => {
+                onSectionClick?.(link.sectionIndex);
+                setIsOpen(false);
+              }} 
+              className="text-gray-300 hover:text-white transition-colors w-full text-center"
+            >
+              {link.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+}
