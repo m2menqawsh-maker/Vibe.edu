@@ -204,17 +204,25 @@ export function InteractiveGlobe({
 
   }, [dotColor, arcColor, markerColor, autoRotateSpeed, connections, markers]);
 
+  const activeRef = useRef(isActive);
+  useEffect(() => {
+    activeRef.current = isActive;
+  }, [isActive]);
+
   useEffect(() => {
     let frameId: number;
+    let firstUpdate = true;
     const render = () => {
-      if (isActive) {
+      const isCurrentlyActive = activeRef.current;
+      if (isCurrentlyActive || firstUpdate || dragRef.current.active) {
         draw();
+        firstUpdate = false;
       }
       frameId = requestAnimationFrame(render);
     };
     frameId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(frameId);
-  }, [draw, isActive]);
+  }, [draw]);
 
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
