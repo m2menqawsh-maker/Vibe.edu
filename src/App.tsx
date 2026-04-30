@@ -8,7 +8,6 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Html } from "@react-three/drei";
 import { GlobeCdn } from "@/components/ui/cobe-globe-cdn";
 import { InteractiveGlobe as UIInteractiveGlobe } from "@/components/ui/interactive-globe";
-import { Navbar } from "./components/ui/mini-navbar";
 import { StackContainerScroll, CardSticky } from "./components/ui/cards-stack";
 import { HeroScrollAnimation } from "./components/ui/container-scroll-animation";
 import { ChevronRight, ChevronLeft, Play, User, ShoppingBag } from "lucide-react";
@@ -694,7 +693,6 @@ export default function App() {
       onMouseMove={handleMouseMove}
     >
       {/* Background Decor */}
-      <Navbar onSectionClick={(index) => setActiveSection(index)} />
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
         <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-[#ca8af0]/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-[#2dd4bf]/10 blur-[120px] rounded-full" />
@@ -1152,8 +1150,12 @@ export default function App() {
               className="rounded-2xl border-2 border-dashed border-white/20 p-12 shadow-2xl backdrop-blur-xl bg-white/5 text-center flex flex-col items-center justify-center min-h-[300px]"
             >
                <h2 className="text-4xl font-bold mb-6 text-white" dir="rtl">هل أنت جاهز للبداية؟</h2>
-               <button className="px-12 py-5 bg-white text-black font-bold tracking-widest text-lg hover:scale-105 transition-transform rounded-full">
-                  ابدأ الآن
+               <button 
+                  onClick={() => setActiveSection(0)}
+                  className="px-12 py-5 bg-white text-black font-bold tracking-widest text-lg hover:scale-105 transition-transform rounded-full flex items-center gap-3 active:scale-95 group"
+                >
+                  <ChevronLeft className="w-5 h-5 rotate-90 group-hover:-translate-y-1 transition-transform" />
+                  الرجوع للأعلى
                </button>
             </CardSticky>
           </StackContainerScroll>
