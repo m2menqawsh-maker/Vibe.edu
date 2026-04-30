@@ -50,6 +50,13 @@ export function GlobeCdn({
   const thetaOffsetRef = useRef(0)
   const isPausedRef = useRef(false)
 
+  const phiRef = useRef(0)
+  const activeRef = useRef(isActive)
+
+  useEffect(() => {
+    activeRef.current = isActive
+  }, [isActive])
+
   const rgb = hexToRgb(color)
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -132,18 +139,21 @@ export function GlobeCdn({
         arcWidth: 0.5, arcHeight: 0.25, opacity: 0.7,
       })
 
+      let firstUpdate = true
       function animate() {
-        if (isActive) {
-          if (!isPausedRef.current) phi += speed
+        const isCurrentlyActive = activeRef.current
+        if (isCurrentlyActive || firstUpdate || pointerInteracting.current) {
+          if (!isPausedRef.current && isCurrentlyActive) phiRef.current += speed
           
           // Add smooth damping for the drag interaction
           smoothDragOffset.current.phi += (dragOffset.current.phi - smoothDragOffset.current.phi) * 0.15
           smoothDragOffset.current.theta += (dragOffset.current.theta - smoothDragOffset.current.theta) * 0.15
   
           globe!.update({
-            phi: phi + phiOffsetRef.current + smoothDragOffset.current.phi,
+            phi: phiRef.current + phiOffsetRef.current + smoothDragOffset.current.phi,
             theta: 0.2 + thetaOffsetRef.current + smoothDragOffset.current.theta,
           })
+          firstUpdate = false
         }
         animationId = requestAnimationFrame(animate)
       }
