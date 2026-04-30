@@ -13,6 +13,7 @@ interface GlobeProps {
   autoRotateSpeed?: number;
   connections?: { from: [number, number]; to: [number, number] }[];
   markers?: { lat: number; lng: number; label?: string }[];
+  isActive?: boolean;
 }
 
 const hexToRgbString = (hex: string): string => {
@@ -84,6 +85,7 @@ export function InteractiveGlobe({
   autoRotateSpeed = 0.002,
   connections = DEFAULT_CONNECTIONS,
   markers = DEFAULT_MARKERS,
+  isActive = true,
 }: GlobeProps) {
   const rgbString = color ? hexToRgbString(color) : "100, 180, 255";
   const dotColor = propDotColor || `rgba(${rgbString}, ALPHA)`;
@@ -205,12 +207,14 @@ export function InteractiveGlobe({
   useEffect(() => {
     let frameId: number;
     const render = () => {
-      draw();
+      if (isActive) {
+        draw();
+      }
       frameId = requestAnimationFrame(render);
     };
     frameId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(frameId);
-  }, [draw]);
+  }, [draw, isActive]);
 
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
