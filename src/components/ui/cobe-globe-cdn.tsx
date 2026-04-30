@@ -21,6 +21,7 @@ interface GlobeCdnProps {
   className?: string
   speed?: number
   color?: string
+  isActive?: boolean
 }
 
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -39,6 +40,7 @@ export function GlobeCdn({
   className = "",
   speed = 0.003,
   color = "#ca8af0",
+  isActive = true,
 }: GlobeCdnProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pointerInteracting = useRef<{ x: number; y: number } | null>(null)
@@ -131,16 +133,18 @@ export function GlobeCdn({
       })
 
       function animate() {
-        if (!isPausedRef.current) phi += speed
-        
-        // Add smooth damping for the drag interaction
-        smoothDragOffset.current.phi += (dragOffset.current.phi - smoothDragOffset.current.phi) * 0.15
-        smoothDragOffset.current.theta += (dragOffset.current.theta - smoothDragOffset.current.theta) * 0.15
-
-        globe!.update({
-          phi: phi + phiOffsetRef.current + smoothDragOffset.current.phi,
-          theta: 0.2 + thetaOffsetRef.current + smoothDragOffset.current.theta,
-        })
+        if (isActive) {
+          if (!isPausedRef.current) phi += speed
+          
+          // Add smooth damping for the drag interaction
+          smoothDragOffset.current.phi += (dragOffset.current.phi - smoothDragOffset.current.phi) * 0.15
+          smoothDragOffset.current.theta += (dragOffset.current.theta - smoothDragOffset.current.theta) * 0.15
+  
+          globe!.update({
+            phi: phi + phiOffsetRef.current + smoothDragOffset.current.phi,
+            theta: 0.2 + thetaOffsetRef.current + smoothDragOffset.current.theta,
+          })
+        }
         animationId = requestAnimationFrame(animate)
       }
       animate()
