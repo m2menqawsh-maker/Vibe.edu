@@ -8,6 +8,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Html } from "@react-three/drei";
 import { GlobeCdn } from "@/components/ui/cobe-globe-cdn";
 import { InteractiveGlobe as UIInteractiveGlobe } from "@/components/ui/interactive-globe";
+import { Navbar } from "./components/ui/mini-navbar";
 import { StackContainerScroll, CardSticky } from "./components/ui/cards-stack";
 import { HeroScrollAnimation } from "./components/ui/container-scroll-animation";
 import { ChevronRight, ChevronLeft, Play, User, ShoppingBag } from "lucide-react";
@@ -241,9 +242,9 @@ function CarouselItem({ index, currentIndex, url, color, count, activeSection }:
     const floatY = Math.sin(state.clock.elapsedTime * 1.5) * 0.15;
     const finalTargetY = targetY + floatY;
 
-    groupRef.current.position.x = THREE.MathUtils.damp(groupRef.current.position.x, targetX, 10, delta);
-    groupRef.current.position.y = THREE.MathUtils.damp(groupRef.current.position.y, finalTargetY, 10, delta);
-    groupRef.current.scale.setScalar(THREE.MathUtils.damp(groupRef.current.scale.x, targetScale, 10, delta));
+    groupRef.current.position.x = THREE.MathUtils.damp(groupRef.current.position.x, targetX, 15, delta);
+    groupRef.current.position.y = THREE.MathUtils.damp(groupRef.current.position.y, finalTargetY, 15, delta);
+    groupRef.current.scale.setScalar(THREE.MathUtils.damp(groupRef.current.scale.x, targetScale, 15, delta));
 
     // Improved rotation: Look at user (face camera) + position-based tilt
     // We add a 'bank' effect when moving laterally to make it feel more aerodynamic
@@ -481,7 +482,7 @@ function FloatingShapes({ activeSection, mouseX, mouseY }: { activeSection: numb
       const isVisibleEarly = i % 3 === 0;
       const finalTargetScale = (isLastSection || isVisibleEarly) ? targetScale : 0;
       
-      dummy.current.scale.setScalar(THREE.MathUtils.damp(dummy.current.scale.x, finalTargetScale, 4, delta));
+      dummy.current.scale.setScalar(THREE.MathUtils.damp(dummy.current.scale.x, finalTargetScale, 10, delta));
 
       dummy.current.updateMatrix();
 
@@ -637,7 +638,7 @@ export default function App() {
     isScrolling.current = true;
     if (e.deltaY > 0) setActiveSection(p => Math.min(p + 1, 7));
     else setActiveSection(p => Math.max(p - 1, 0));
-    setTimeout(() => { isScrolling.current = false; }, 1000);
+    setTimeout(() => { isScrolling.current = false; }, 800);
   };
 
   const mouseX = useMotionValue(0);
@@ -693,6 +694,7 @@ export default function App() {
       onMouseMove={handleMouseMove}
     >
       {/* Background Decor */}
+      <Navbar onSectionClick={(index) => setActiveSection(index)} />
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
         <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-[#ca8af0]/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-[#2dd4bf]/10 blur-[120px] rounded-full" />
@@ -740,6 +742,7 @@ export default function App() {
           if (dist > TOPICS.length / 2) dist -= TOPICS.length;
           if (dist < -TOPICS.length / 2) dist += TOPICS.length;
           const isActive = Math.abs(dist) < 0.1;
+          const isVisible = Math.abs(dist) < 1.1; // Only render current and immediate neighbors for performance
           const GlobeComponent = i % 2 === 0 ? GlobeCdn : UIInteractiveGlobe;
           
           const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -774,6 +777,8 @@ export default function App() {
             opacityValue = 0; 
           }
 
+          if (!isVisible) return null;
+
           return (
             <motion.div
               key={i}
@@ -784,8 +789,8 @@ export default function App() {
                 opacity: opacityValue,
               }}
               transition={{ 
-                duration: 0.8, 
-                ease: [0.16, 1, 0.3, 1] 
+                duration: 0.6, 
+                ease: [0.23, 1, 0.32, 1] 
               }}
               style={{
                 position: 'absolute',
@@ -795,7 +800,7 @@ export default function App() {
                 pointerEvents: (isActive && activeSection < 3) ? 'auto' : 'none',
               }}
             >
-              <GlobeComponent className="w-full h-full" color={topic.color} />
+              <GlobeComponent isActive={isActive} className="w-full h-full" color={topic.color} />
             </motion.div>
           );
         })}
